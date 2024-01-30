@@ -1,3 +1,7 @@
+## Nest App with Typescript
+
+Run unit tests with `npm run test`
+
 Exercise: Scheduling App
 
 Design and implement the API for a minimal scheduling application. This
