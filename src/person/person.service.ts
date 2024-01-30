@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { CreatePersonDto } from './person.dto';
-import generateUniqueId from 'src/utils';
+import generateUniqueId from '../utils';
 
 @Injectable()
 export class PersonService {

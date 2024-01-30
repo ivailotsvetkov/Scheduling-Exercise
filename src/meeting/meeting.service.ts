@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import generateUniqueId from 'src/utils';
+import generateUniqueId from '../utils';
 import { CreateMeetingDto } from './meeting.dto';
 
 @Injectable()
@@ -36,5 +36,9 @@ export class MeetingService {
     const meeting = { id, title, startDate, endDate, participantEmails };
     this.meetings.push(meeting);
     return meeting;
+  }
+
+  meetingsList(): any[] {
+    return this.meetings;
   }
 }

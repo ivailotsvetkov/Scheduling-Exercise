@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { CreatePersonDto, GetSuggestedTimeslotsDto } from './person.dto';
 import { PersonService } from './person.service';
-import { MeetingService } from 'src/meeting/meeting.service';
+import { MeetingService } from '../meeting/meeting.service';
 
 @Controller('persons')
 export class PersonController {
@@ -26,12 +26,12 @@ export class PersonController {
   @Get(':email/meetings')
   getAllMeetingsForUserEmail(@Param('email') email: string) {
     if (this.personService.checkIfPersonExists(email)) {
-      const meetingsOfTheUser = this.meetingsService.meetings.filter(
-        (meeting) => meeting.participantEmails.includes(email),
-      );
+      const meetingsOfTheUser = this.meetingsService
+        .meetingsList()
+        .filter((meeting) => meeting.participantEmails.includes(email));
       return meetingsOfTheUser;
     }
-    return new NotFoundException('Email not found');
+    throw new NotFoundException('Email not found');
   }
 
   @Get(':email/upcoming-meetings')
@@ -40,13 +40,14 @@ export class PersonController {
     @Query('date') date: string,
   ) {
     if (this.personService.checkIfPersonExists(email)) {
-      const meetingsOfTheUser = this.meetingsService.meetings.filter(
-        (meeting) =>
+      const meetingsOfTheUser = this.meetingsService
+        .meetingsList()
+        .filter((meeting) =>
           meeting.participantEmails.includes(email) &&
           meeting.startDate.getTime() > date
             ? new Date(date)
             : Date.now(),
-      );
+        );
       return meetingsOfTheUser;
     }
     throw new NotFoundException('Email not found');
@@ -67,15 +68,15 @@ export class PersonController {
     // looping through every person's upcoming meeting and removing the hours from the total working hours set
     for (const email of getTimeslot.emails) {
       if (!this.personService.checkIfPersonExists(email)) {
-        return new NotFoundException('Email not found');
+        throw new NotFoundException('Email not found');
       }
       const takenSlots = this.getUpcomingMeetingForEmailAndDate(
         email,
         getTimeslot.date?.toString(),
       );
       takenSlots.forEach((element) => {
-        if (workingHoursSet.has(element.startDate.getHours())) {
-          workingHoursSet.delete(element.startDate.getHours());
+        if (workingHoursSet.has(element.startDate.getHours() - 1)) {
+          workingHoursSet.delete(element.startDate.getHours() - 1);
         }
       });
     }
